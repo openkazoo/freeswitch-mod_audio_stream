@@ -643,7 +643,8 @@ extern "C" {
                 out_len = available / (tech_pvt->channels * sizeof(spx_int16_t));
             }
 
-            spx_int16_t outbuf[out_len * tech_pvt->channels];
+            // Use dynamic allocation
+            std::vector<spx_int16_t> outbuf(out_len * tech_pvt->channels);
 
             if (tech_pvt->channels == 1) {
                 speex_resampler_process_int(
@@ -651,7 +652,7 @@ extern "C" {
                     0,
                     (const spx_int16_t *)frame.data,
                     &in_len,
-                    outbuf,
+                    outbuf.data(),
                     &out_len
                 );
             } else {
@@ -659,7 +660,7 @@ extern "C" {
                     tech_pvt->resampler,
                     (const spx_int16_t *)frame.data,
                     &in_len,
-                    outbuf,
+                    outbuf.data(),
                     &out_len
                 );
             }
@@ -668,7 +669,7 @@ extern "C" {
             if (bytes_written > 0) {
                 switch_buffer_write(
                     tech_pvt->sbuffer,
-                    reinterpret_cast<const uint8_t *>(outbuf),
+                    reinterpret_cast<const uint8_t *>(outbuf.data()),
                     bytes_written
                 );
                 if (switch_buffer_freespace(tech_pvt->sbuffer) == 0) {
