@@ -188,9 +188,10 @@ SWITCH_STANDARD_API(stream_function)
                 int sampling = 8000;
                 switch_media_bug_flag_t flags = SMBF_READ_STREAM;
                 char *metadata = argc > 5 ? argv[5] : NULL;
-                if(metadata && (is_valid_utf8(argv[2]) != SWITCH_STATUS_SUCCESS)) {
+                // Check if the metadata contains invalid utf8 characters
+                if(metadata && (is_valid_utf8(metadata) != SWITCH_STATUS_SUCCESS)) {
                     switch_log_printf(SWITCH_CHANNEL_SESSION_LOG(session), SWITCH_LOG_ERROR,
-                                      "%s contains invalid utf8 characters\n", argv[2]);
+                                      "%s contains invalid utf8 characters\n", metadata);
                     switch_core_session_rwunlock(lsession);
                     goto done;
                 }
