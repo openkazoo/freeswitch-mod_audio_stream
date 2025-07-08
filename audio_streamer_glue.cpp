@@ -138,6 +138,12 @@ public:
         if(bug) {
             auto* tech_pvt = (private_t*) switch_core_media_bug_get_user_data(bug);
             tech_pvt->close_requested = 1;
+
+            // Clear the channel's private data first
+            switch_channel_t *channel = switch_core_session_get_channel(session);
+            switch_channel_set_private(channel, MY_BUG_NAME, nullptr);
+
+            // Then close the media bug
             switch_core_media_bug_close(&bug, SWITCH_FALSE);
         }
     }
