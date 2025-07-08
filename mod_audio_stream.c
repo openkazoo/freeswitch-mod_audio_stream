@@ -213,6 +213,13 @@ SWITCH_STANDARD_API(stream_function)
                         sampling = 8000;
                     } else {
                         sampling = atoi(argv[4]);
+
+                        if (sampling <= 0) {
+                            switch_log_printf(SWITCH_CHANNEL_SESSION_LOG(session), SWITCH_LOG_ERROR,
+                                            "invalid or non-positive sample rate: %s\n", argv[4]);
+                            switch_core_session_rwunlock(lsession);
+                            goto done;
+                        }
                     }
                 }
                 if (!validate_ws_uri(argv[2], &wsUri[0])) {
