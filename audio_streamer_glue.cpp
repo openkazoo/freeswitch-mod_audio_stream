@@ -137,7 +137,7 @@ public:
         auto *bug = get_media_bug(session);
         if(bug) {
             auto* tech_pvt = (private_t*) switch_core_media_bug_get_user_data(bug);
-            tech_pvt->close_requested = 1;
+            tech_pvt->close_requested = true;
 
             // Clear the channel's private data first
             switch_channel_t *channel = switch_core_session_get_channel(session);
@@ -330,7 +330,7 @@ namespace {
         tech_pvt->responseHandler = responseHandler;
         tech_pvt->rtp_packets = rtp_packets;
         tech_pvt->channels = channels;
-        tech_pvt->audio_paused = 0;
+        tech_pvt->audio_paused = false;
 
         if (metadata) strncpy(tech_pvt->initialMetadata, metadata, MAX_METADATA_LEN);
 
@@ -494,7 +494,7 @@ extern "C" {
         return SWITCH_STATUS_SUCCESS;
     }
 
-    switch_status_t stream_session_pauseresume(switch_core_session_t *session, int pause) {
+    switch_status_t stream_session_pauseresume(switch_core_session_t *session, bool pause) {
         switch_channel_t *channel = switch_core_session_get_channel(session);
         auto *bug = (switch_media_bug_t*) switch_channel_get_private(channel, MY_BUG_NAME);
         if (!bug) {
@@ -690,7 +690,7 @@ extern "C" {
         return SWITCH_TRUE;
     }
 
-    switch_status_t stream_session_cleanup(switch_core_session_t *session, char* text, int channelIsClosing) {
+    switch_status_t stream_session_cleanup(switch_core_session_t *session, char* text, bool channelIsClosing) {
         switch_channel_t *channel = switch_core_session_get_channel(session);
         auto *bug = (switch_media_bug_t*) switch_channel_get_private(channel, MY_BUG_NAME);
         if(bug)

@@ -32,7 +32,7 @@ static switch_bool_t capture_callback(switch_media_bug_t *bug, void *user_data, 
             {
                 switch_log_printf(SWITCH_CHANNEL_SESSION_LOG(session), SWITCH_LOG_INFO, "Got SWITCH_ABC_TYPE_CLOSE.\n");
                 // Check if this is a normal channel closure or a requested closure
-                int channelIsClosing = tech_pvt->close_requested ? 0 : 1;
+                bool channelIsClosing = tech_pvt->close_requested ? false : true;
                 stream_session_cleanup(session, NULL, channelIsClosing);
             }
             break;
@@ -105,12 +105,12 @@ static switch_status_t do_stop(switch_core_session_t *session, char* text)
     else {
         switch_log_printf(SWITCH_CHANNEL_SESSION_LOG(session), SWITCH_LOG_INFO, "mod_audio_stream: stop\n");
     }
-    status = stream_session_cleanup(session, text, 0);
+    status = stream_session_cleanup(session, text, false);
 
     return status;
 }
 
-static switch_status_t do_pauseresume(switch_core_session_t *session, int pause)
+static switch_status_t do_pauseresume(switch_core_session_t *session, bool pause)
 {
     switch_status_t status = SWITCH_STATUS_SUCCESS;
 

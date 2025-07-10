@@ -3,6 +3,7 @@
 
 #include <switch.h>
 #include <speex/speex_resampler.h>
+#include <stdbool.h>
 
 #define MY_BUG_NAME "audio_stream"
 #define MAX_SESSION_ID (256)
@@ -26,8 +27,8 @@ struct private_data {
     char ws_uri[MAX_WS_URI];
     int sampling;
     int channels;
-    int audio_paused:1;
-    int close_requested:1;
+    bool audio_paused;
+    bool close_requested;
     char initialMetadata[8192];
     switch_buffer_t *sbuffer;
     int rtp_packets;
