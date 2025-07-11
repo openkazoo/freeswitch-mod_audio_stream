@@ -324,15 +324,15 @@ namespace {
 
         memset(tech_pvt, 0, sizeof(private_t));
 
-        strncpy(tech_pvt->sessionId, switch_core_session_get_uuid(session), MAX_SESSION_ID);
-        strncpy(tech_pvt->ws_uri, wsUri, MAX_WS_URI);
+        snprintf(tech_pvt->sessionId, MAX_SESSION_ID, "%s", switch_core_session_get_uuid(session));
+        snprintf(tech_pvt->ws_uri, MAX_WS_URI, "%s", wsUri);
         tech_pvt->sampling = desiredSampling;
         tech_pvt->responseHandler = responseHandler;
         tech_pvt->rtp_packets = rtp_packets;
         tech_pvt->channels = channels;
         tech_pvt->audio_paused = false;
 
-        if (metadata) strncpy(tech_pvt->initialMetadata, metadata, MAX_METADATA_LEN);
+        if (metadata) snprintf(tech_pvt->initialMetadata, MAX_METADATA_LEN, "%s", metadata);
 
         //size_t buflen = (FRAME_SIZE_8000 * desiredSampling / 8000 * channels * 1000 / RTP_PERIOD * BUFFERED_SEC);
         const size_t buflen = (FRAME_SIZE_8000 * desiredSampling / 8000 * channels * rtp_packets);
@@ -442,7 +442,7 @@ extern "C" {
         }
 
         // Copy valid URI to wsUri
-        std::strncpy(wsUri, url, MAX_WS_URI);
+        snprintf(wsUri, MAX_WS_URI, "%s", url);
         return 1;
     }
 
@@ -697,7 +697,7 @@ extern "C" {
         {
             auto* tech_pvt = (private_t*) switch_core_media_bug_get_user_data(bug);
             char sessionId[MAX_SESSION_ID];
-            strcpy(sessionId, tech_pvt->sessionId);
+            snprintf(sessionId, MAX_SESSION_ID, "%s", tech_pvt->sessionId);
 
             switch_mutex_lock(tech_pvt->mutex);
             switch_log_printf(SWITCH_CHANNEL_SESSION_LOG(session), SWITCH_LOG_DEBUG, "(%s) stream_session_cleanup\n", sessionId);
