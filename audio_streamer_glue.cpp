@@ -714,6 +714,7 @@ extern "C" {
                 finish(tech_pvt);
             }
 
+            switch_mutex_unlock(tech_pvt->mutex);
             destroy_tech_pvt(tech_pvt);
 
             switch_log_printf(SWITCH_CHANNEL_SESSION_LOG(session), SWITCH_LOG_INFO, "(%s) stream_session_cleanup: connection closed\n", sessionId);
