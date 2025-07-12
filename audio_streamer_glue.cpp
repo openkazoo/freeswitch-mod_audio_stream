@@ -399,50 +399,65 @@ namespace {
 }
 
 extern "C" {
-    int validate_ws_uri(const char* url, char* wsUri) {
-        const char* scheme = nullptr;
-        const char* hostStart = nullptr;
-        const char* hostEnd = nullptr;
-        const char* portStart = nullptr;
+    int validate_ws_uri(const char* url_in, char* url_out) {
+        const char* host_start = NULL;
 
-        // Check scheme
-        if (strncmp(url, "ws://", 5) == 0) {
-            scheme = "ws";
-            hostStart = url + 5;
-        } else if (strncmp(url, "wss://", 6) == 0) {
-            scheme = "wss";
-            hostStart = url + 6;
+        // Validate scheme
+        if (strncmp(url_in, "ws://", 5) == 0) {
+            host_start = url_in + 5;
+        } else if (strncmp(url_in, "wss://", 6) == 0) {
+            host_start = url_in + 6;
         } else {
+            return 0; // Invalid scheme
+        }
+
+        if (*host_start == '\0') {
+            return 0; // URI cannot end after the scheme
+        }
+
+        // Locate host and port boundaries
+        const char* path_start = strchr(host_start, '/');
+        const char* port_delim = strchr(host_start, ':');
+
+        // If a colon exists, it must be for a port, not part of the path
+        if (port_delim && path_start && port_delim > path_start) {
+            port_delim = NULL;
+        }
+
+        const char* host_end = port_delim ? port_delim : (path_start ? path_start : (host_start + strlen(host_start)));
+
+        // Host must not be empty
+        if (host_start == host_end) {
             return 0;
         }
 
-        // Find host end or port start
-        hostEnd = hostStart;
-        while (*hostEnd && *hostEnd != ':' && *hostEnd != '/') {
-            if (!std::isalnum(*hostEnd) && *hostEnd != '-' && *hostEnd != '.') {
+        // Validate host characters
+        for (const char* p = host_start; p < host_end; ++p) {
+            if (!isalnum((unsigned char)*p) && *p != '-' && *p != '.') {
                 return 0;
             }
-            ++hostEnd;
         }
 
-        // Check if host is empty
-        if (hostStart == hostEnd) {
-            return 0;
-        }
+        // Validate port (if it exists)
+        if (port_delim) {
+            const char* port_start = port_delim + 1;
+            const char* port_end = path_start ? path_start : port_start + strlen(port_start);
 
-        // Check for port
-        if (*hostEnd == ':') {
-            portStart = hostEnd + 1;
-            while (*portStart && *portStart != '/') {
-                if (!std::isdigit(*portStart)) {
-                    return 0;
-                }
-                ++portStart;
+            if (port_start == port_end) {
+                return 0; // Port must not be empty
+            }
+
+            char* end_ptr;
+            long port = strtol(port_start, &end_ptr, 10);
+
+            if (end_ptr != port_end || port < 0 || port > 65535) {
+                return 0; // Invalid port number or out of range
             }
         }
 
-        // Copy valid URI to wsUri
-        snprintf(wsUri, MAX_WS_URI, "%s", url);
+        // Copy the URL
+        snprintf(url_out, MAX_WS_URI, "%s", url_in);
+
         return 1;
     }
 
